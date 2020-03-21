@@ -1,0 +1,38 @@
+{
+  "name": "cockatoo-player",
+  "version": "1.0.0",
+  "description": "Audio player with subtitle and caption support",
+  "private": false,
+  "main": "./src/index.js",
+  "scripts": {
+    "dev": "vue serve AudioPlayer.vue",
+    "build": "bili --name index --plugin vue --vue.css false"
+  },
+  "files": [
+    "dist/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iwouldrathercode/cockatoo-player.git"
+  },
+  "keywords": [
+    "audio",
+    "player",
+    "vue"
+  ],
+  "author": "psgganesh@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/iwouldrathercode/cockatoo-player/issues"
+  },
+  "homepage": "https://github.com/iwouldrathercode/cockatoo-player#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "subtitle": "^2.0.3"
+  },
+  "devDependencies": {
+    "bili": "^4.8.1",
+    "rollup-plugin-vue": "^5.1.6",
+    "vue-template-compiler": "^2.6.11"
+  }
+}
