@@ -1,20 +1,14 @@
 <template>
   <div id="player">
-    <audio id="audio" @timeupdate="time = $event.target.currentTime" controls>
-      <source src="./purusha-sukta.mp3" type="audio/mpeg" />
+    <audio ref="audio" id="audio" @timeupdate="updateTimeSprites" controls controlsList="nodownload">
+      <source src="./purusha-sukta.mp3" type="audio/mpeg" preload="auto" />
       Your browser does not support the audio element.
     </audio>
-    <br/>
-    <!-- <p>{{ trackCurrentTime }}</p> -->
-    <!-- <ul>
-      <li v-for="(line, index) in subtitleLines" :key="index">
-        {{ subtitle }} 
-        {{ line.start }} - {{ line.end }} : {{ line.text }}
+    <ul class="pad">
+      <li class="line" v-bind:class="{ active: (subtitle === line.text) }" @click="seek(line)" v-for="(line, index) in subtitleLines" :key="index">
+        {{ line.text }}
       </li>
-    </ul> -->
-    <p style="background: 'aliceblue'; width: 100%; font-size: x-large; text-align: center;">
-      {{ subtitle }}
-    </p>
+    </ul>
   </div>
 </template>
 
@@ -27,7 +21,8 @@ export default {
   data: () => {
     return {
       time: 0,
-      subtitleVtt: 'https://gist.githubusercontent.com/psgganesh/16ab9d4978c3945cc96f5962e4220041/raw/b63a11f3712a0611eae1e13d9fb9de98d1f0fea5/transcript.vtt',
+      end: 0,
+      subtitleVtt: 'https://gist.githubusercontent.com/psgganesh/16ab9d4978c3945cc96f5962e4220041/raw/19b46338647da63862bf835ce08b798fa2efe7ab/transcript.vtt',
       subtitleLines: []
     }
   },
@@ -62,9 +57,20 @@ export default {
       });
       this.subtitleLines = vttResponse;
     },
-    highlightActiveClass(line) {
-      console.log(line);
-      return 0;
+    seek(line) {
+      this.$refs.audio.currentTime = Math.abs(line.start / 1000);
+      this.end = line.end;
+      this.$refs.audio.play();
+    },
+    updateTimeSprites(event) {
+      this.time = event.target.currentTime;
+      if(this.end !== 0) {
+        if(Math.abs(this.time *1000) >= (this.end) + 100) {
+          this.$refs.audio.pause();
+          this.end = 0;
+          this.$refs.audio.currentTime = 0;
+        }
+      }
     }
   }
 };
@@ -72,9 +78,33 @@ export default {
 
 
 <style>
+#player {
+  width: 100%;
+}
 audio {
   width: 100%;
   border-radius: 0px;
   background: #f1f3f4;
+  user-select: none;
+  outline: none;
+}
+.pad {
+  list-style-type: none;
+  text-align: center;
+  font-size: x-large;
+  padding: 0px;
+  margin: 0px;
+}
+.line {
+  color: #CCCCCC;
+  user-select: none;
+  font-size: -webkit-xxx-large;
+}
+.line:hover {
+  cursor: pointer;
+  background: #F1F3F459;
+}
+.line.active {
+  color: #444444;
 }
 </style>
