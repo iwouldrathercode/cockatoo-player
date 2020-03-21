@@ -1,7 +1,7 @@
 <template>
   <div id="player">
     <audio ref="audio" id="audio" @timeupdate="updateTimeSprites" controls controlsList="nodownload">
-      <source src="./purusha-sukta.mp3" type="audio/mpeg" preload="auto" />
+      <source src="./music.mp3" type="audio/mpeg" preload="auto" />
       Your browser does not support the audio element.
     </audio>
     <ul class="pad">
@@ -14,15 +14,22 @@
 
 <script>
 import axios from 'axios';
-import { parse } from 'subtitle'
+import { parse } from 'subtitle';
 
 export default {
   name: "CockatooPlayer",
+  props: {
+    color: { type: String, default: "#CCCCCC" },
+    align: { type: String, default: "center"},
+    hover: { type: String, default: "#F1F3F459" },
+    active: { type: String, default: "active" },
+    size: { type: String, default: "default" },
+  },
   data: () => {
     return {
       time: 0,
       end: 0,
-      subtitleVtt: 'https://gist.githubusercontent.com/psgganesh/16ab9d4978c3945cc96f5962e4220041/raw/19b46338647da63862bf835ce08b798fa2efe7ab/transcript.vtt',
+      subtitleVtt: 'https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/2cb75073e95efc5a5f72378072f0922732b3b381/music-transcript.vtt',
       subtitleLines: []
     }
   },
@@ -90,21 +97,62 @@ audio {
 }
 .pad {
   list-style-type: none;
-  text-align: center;
-  font-size: x-large;
   padding: 0px;
   margin: 0px;
+  font-size: -webkit-xxx-large;
+  font-family: sans-serif;
 }
 .line {
   color: #CCCCCC;
   user-select: none;
-  font-size: -webkit-xxx-large;
 }
 .line:hover {
   cursor: pointer;
   background: #F1F3F459;
 }
+
 .line.active {
-  color: #444444;
+  color: dimgray;
+}
+.line.active-red {
+  color: orangered;
+}
+.line.active-green {
+  color: green;
+}
+.line.active-blue {
+  color: royalblue;
+}
+.line.active-yellow {
+  color: yellow;
+}
+.line.active-maroon {
+  color: maroon;
+}
+
+
+/* Sizes */
+.size-medium {
+  font-size: medium;
+}
+.size-large {
+  font-size: large;
+}
+.size-larger {
+  font-size: larger;
+}
+.size-default {
+  font-size: -webkit-xxx-large;
+}
+
+/* Text alignment */
+.align--left {
+  text-align: left;
+}
+.align--center {
+  text-align: center;
+}
+.align--right {
+  text-align: right;
 }
 </style>

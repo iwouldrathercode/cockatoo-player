@@ -1,5 +1,6 @@
 import CockatooPlayer from "./CockatooPlayer.vue";
 
+
 export default {
  install(Vue, options) {
   // Let's register our component globally
