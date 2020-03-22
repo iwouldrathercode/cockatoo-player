@@ -2,6 +2,7 @@
 > Audio player with subtitle and caption support
 
 ## Dependencies :sparkles:
+- [axios](https://www.npmjs.com/package/axios)
 - [subtitle.js](https://www.npmjs.com/package/subtitle)
 
 ```javascript
@@ -23,3 +24,6 @@ Somewhere on your HTML / Vue Template
 ## Output
 
 <img src="https://i.imgur.com/ggj5wi3.png" />
+
+## Todo
+- [ ] Remove axios
