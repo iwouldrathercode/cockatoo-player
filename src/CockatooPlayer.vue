@@ -21,7 +21,7 @@ export default {
   name: "CockatooPlayer",
   props: {
     track: { type: String, default: "http://tamilfiles.xyz/songs/Kolamavu%20Kokila/Kalyaana%20Vayasu.mp3"},
-    transcript: { type: String, default: "https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/007508e3a0c7e1c66cd225698794c9e5b1f430e6/music-transcript.vtt"},
+    transcript: { type: String, default: "https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/fa58768e39074bc2cd4ea97e6fbf510754b9a1f3/music-transcript.vtt"},
     align: { type: String, default: "center"},
     color: { type: String, default: "active" },
     size: { type: String, default: "default" },
