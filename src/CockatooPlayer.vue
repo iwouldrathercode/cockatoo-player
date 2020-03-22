@@ -15,12 +15,12 @@
 
 <script>
 import axios from 'axios';
-import * as reader  from 'subtitle';
+import { parse }  from 'subtitle';
 
 export default {
   name: "CockatooPlayer",
   props: {
-    track: { type: String, default: "http://tamilfiles.xyz/songs/Kolamavu%20Kokila/Kalyaana%20Vayasu.mp3"},
+    track: { type: String, default: "https://tamilfiles.xyz/songs/Kolamavu%20Kokila/Kalyaana%20Vayasu.mp3"},
     transcript: { type: String, default: "https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/fa58768e39074bc2cd4ea97e6fbf510754b9a1f3/music-transcript.vtt"},
     align: { type: String, default: "center"},
     colors: { type: String, default: "active" },
@@ -54,7 +54,7 @@ export default {
       await axios.get(this.transcript)
       .then(function (response) {
         // handle success
-        vttResponse = reader.parse(response.data);
+        vttResponse = parse(response.data);
       })
       .catch(function (error) {
         // handle error

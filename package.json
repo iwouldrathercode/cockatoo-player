@@ -1,9 +1,9 @@
 {
   "name": "cockatoo-player",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Audio player with subtitle and caption support",
   "private": false,
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs.js",
   "scripts": {
     "dev": "vue serve CockatooPlayer.vue",
     "build": "bili --name index --plugin vue --vue.css false"
@@ -31,8 +31,8 @@
     "subtitle": "^2.0.3"
   },
   "devDependencies": {
-    "bili": "^4.8.1",
-    "rollup-plugin-vue": "^5.1.6",
-    "vue-template-compiler": "^2.6.11"
+    "bili": "^3.4.2",
+    "rollup-plugin-vue": "^4.6.1",
+    "vue-template-compiler": "^2.5.22"
   }
 }
