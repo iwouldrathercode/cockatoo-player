@@ -15,7 +15,7 @@
 
 <script>
 import axios from 'axios';
-import { parse } from 'subtitle';
+import * as reader  from 'subtitle';
 
 export default {
   name: "CockatooPlayer",
@@ -23,7 +23,7 @@ export default {
     track: { type: String, default: "http://tamilfiles.xyz/songs/Kolamavu%20Kokila/Kalyaana%20Vayasu.mp3"},
     transcript: { type: String, default: "https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/fa58768e39074bc2cd4ea97e6fbf510754b9a1f3/music-transcript.vtt"},
     align: { type: String, default: "center"},
-    color: { type: String, default: "active" },
+    colors: { type: String, default: "active" },
     size: { type: String, default: "default" },
   },
   data: () => {
@@ -54,7 +54,7 @@ export default {
       await axios.get(this.transcript)
       .then(function (response) {
         // handle success
-        vttResponse = parse(response.data);
+        vttResponse = reader.parse(response.data);
       })
       .catch(function (error) {
         // handle error
@@ -82,8 +82,8 @@ export default {
     },
     activeColor(subtitle, line) {
       let classNames = ['line'];
-      let color = (subtitle === line.text) ? this.color: '';
-      classNames.push(color);
+      let colorName = (subtitle === line.text) ? this.colors: '';
+      classNames.push(colorName);
       return classNames.join(' ');
     }
   }

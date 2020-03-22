@@ -14,7 +14,6 @@ var assert = _interopDefault(require('assert'));
 var stream = _interopDefault(require('stream'));
 var tty = _interopDefault(require('tty'));
 var util = _interopDefault(require('util'));
-var os = _interopDefault(require('os'));
 var zlib = _interopDefault(require('zlib'));
 
 var bind = function bind(fn, thisArg) {
@@ -1573,46 +1572,33 @@ var browser_5 = browser.useColors;
 var browser_6 = browser.storage;
 var browser_7 = browser.colors;
 
-var hasFlag = (flag, argv) => {
+var hasFlag = function (flag, argv) {
 	argv = argv || process.argv;
-	const prefix = flag.startsWith('-') ? '' : (flag.length === 1 ? '-' : '--');
-	const pos = argv.indexOf(prefix + flag);
-	const terminatorPos = argv.indexOf('--');
-	return pos !== -1 && (terminatorPos === -1 ? true : pos < terminatorPos);
+
+	var terminatorPos = argv.indexOf('--');
+	var prefix = /^--/.test(flag) ? '' : '--';
+	var pos = argv.indexOf(prefix + flag);
+
+	return pos !== -1 && (terminatorPos !== -1 ? pos < terminatorPos : true);
 };
 
-const env = process.env;
-
-let forceColor;
-if (hasFlag('no-color') ||
-	hasFlag('no-colors') ||
-	hasFlag('color=false')) {
-	forceColor = false;
-} else if (hasFlag('color') ||
-	hasFlag('colors') ||
-	hasFlag('color=true') ||
-	hasFlag('color=always')) {
-	forceColor = true;
-}
-if ('FORCE_COLOR' in env) {
-	forceColor = env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0;
-}
-
-function translateLevel(level) {
+var support = function (level) {
 	if (level === 0) {
 		return false;
 	}
 
 	return {
-		level,
+		level: level,
 		hasBasic: true,
 		has256: level >= 2,
 		has16m: level >= 3
 	};
-}
+};
 
-function supportsColor(stream) {
-	if (forceColor === false) {
+var supportLevel = (function () {
+	if (hasFlag('no-color') ||
+		hasFlag('no-colors') ||
+		hasFlag('color=false')) {
 		return 0;
 	}
 
@@ -1626,88 +1612,57 @@ function supportsColor(stream) {
 		return 2;
 	}
 
-	if (stream && !stream.isTTY && forceColor !== true) {
+	if (hasFlag('color') ||
+		hasFlag('colors') ||
+		hasFlag('color=true') ||
+		hasFlag('color=always')) {
+		return 1;
+	}
+
+	if (process.stdout && !process.stdout.isTTY) {
 		return 0;
 	}
 
-	const min = forceColor ? 1 : 0;
-
 	if (process.platform === 'win32') {
-		// Node.js 7.5.0 is the first version of Node.js to include a patch to
-		// libuv that enables 256 color output on Windows. Anything earlier and it
-		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
-		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
-		// release that supports 256 colors. Windows 10 build 14931 is the first release
-		// that supports 16m/TrueColor.
-		const osRelease = os.release().split('.');
-		if (
-			Number(process.versions.node.split('.')[0]) >= 8 &&
-			Number(osRelease[0]) >= 10 &&
-			Number(osRelease[2]) >= 10586
-		) {
-			return Number(osRelease[2]) >= 14931 ? 3 : 2;
-		}
-
 		return 1;
 	}
 
-	if ('CI' in env) {
-		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+	if ('CI' in process.env) {
+		if ('TRAVIS' in process.env || process.env.CI === 'Travis') {
 			return 1;
 		}
 
-		return min;
+		return 0;
 	}
 
-	if ('TEAMCITY_VERSION' in env) {
-		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	if ('TEAMCITY_VERSION' in process.env) {
+		return process.env.TEAMCITY_VERSION.match(/^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/) === null ? 0 : 1;
 	}
 
-	if (env.COLORTERM === 'truecolor') {
-		return 3;
-	}
-
-	if ('TERM_PROGRAM' in env) {
-		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
-
-		switch (env.TERM_PROGRAM) {
-			case 'iTerm.app':
-				return version >= 3 ? 3 : 2;
-			case 'Apple_Terminal':
-				return 2;
-			// No default
-		}
-	}
-
-	if (/-256(color)?$/i.test(env.TERM)) {
+	if (/^(screen|xterm)-256(?:color)?/.test(process.env.TERM)) {
 		return 2;
 	}
 
-	if (/^screen|^xterm|^vt100|^vt220|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+	if (/^screen|^xterm|^vt100|color|ansi|cygwin|linux/i.test(process.env.TERM)) {
 		return 1;
 	}
 
-	if ('COLORTERM' in env) {
+	if ('COLORTERM' in process.env) {
 		return 1;
 	}
 
-	if (env.TERM === 'dumb') {
-		return min;
+	if (process.env.TERM === 'dumb') {
+		return 0;
 	}
 
-	return min;
+	return 0;
+})();
+
+if (supportLevel === 0 && 'FORCE_COLOR' in process.env) {
+	supportLevel = 1;
 }
 
-function getSupportLevel(stream) {
-	const level = supportsColor(stream);
-	return translateLevel(level);
-}
-
-var supportsColor_1 = {
-	supportsColor: getSupportLevel,
-	stdout: getSupportLevel(process.stdout),
-	stderr: getSupportLevel(process.stderr)
-};
+var supportsColor = process && support(supportLevel);
 
 var node = createCommonjsModule(function (module, exports) {
 /**
@@ -1738,8 +1693,8 @@ exports.useColors = useColors;
 exports.colors = [ 6, 2, 3, 4, 5, 1 ];
 
 try {
-  var supportsColor = supportsColor_1;
-  if (supportsColor && supportsColor.level >= 2) {
+  var supportsColor$1 = supportsColor;
+  if (supportsColor$1 && supportsColor$1.level >= 2) {
     exports.colors = [
       20, 21, 26, 27, 32, 33, 38, 39, 40, 41, 42, 43, 44, 45, 56, 57, 62, 63, 68,
       69, 74, 75, 76, 77, 78, 79, 80, 81, 92, 93, 98, 99, 112, 113, 128, 129, 134,
@@ -2239,55 +2194,38 @@ var followRedirects = wrap({ http: http, https: https });
 var wrap_1 = wrap;
 followRedirects.wrap = wrap_1;
 
-var _args = [
-	[
-		"axios@0.19.2",
-		"/Users/shankar/Documents/Projects/Javascript/cockatoo-player"
-	]
+var name = "axios";
+var version = "0.19.2";
+var description = "Promise based HTTP client for the browser and node.js";
+var main = "index.js";
+var scripts = {
+	test: "grunt test && bundlesize",
+	start: "node ./sandbox/server.js",
+	build: "NODE_ENV=production grunt build",
+	preversion: "npm test",
+	version: "npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json",
+	postversion: "git push && git push --tags",
+	examples: "node ./examples/server.js",
+	coveralls: "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+	fix: "eslint --fix lib/**/*.js"
+};
+var repository = {
+	type: "git",
+	url: "https://github.com/axios/axios.git"
+};
+var keywords = [
+	"xhr",
+	"http",
+	"ajax",
+	"promise",
+	"node"
 ];
-var _from = "axios@0.19.2";
-var _id = "axios@0.19.2";
-var _inBundle = false;
-var _integrity = "sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==";
-var _location = "/axios";
-var _phantomChildren = {
-};
-var _requested = {
-	type: "version",
-	registry: true,
-	raw: "axios@0.19.2",
-	name: "axios",
-	escapedName: "axios",
-	rawSpec: "0.19.2",
-	saveSpec: null,
-	fetchSpec: "0.19.2"
-};
-var _requiredBy = [
-	"/",
-	"/vue-audio-visual"
-];
-var _resolved = "https://registry.npmjs.org/axios/-/axios-0.19.2.tgz";
-var _spec = "0.19.2";
-var _where = "/Users/shankar/Documents/Projects/Javascript/cockatoo-player";
-var author = {
-	name: "Matt Zabriskie"
-};
-var browser$1 = {
-	"./lib/adapters/http.js": "./lib/adapters/xhr.js"
-};
+var author = "Matt Zabriskie";
+var license = "MIT";
 var bugs = {
 	url: "https://github.com/axios/axios/issues"
 };
-var bundlesize = [
-	{
-		path: "./dist/axios.min.js",
-		threshold: "5kB"
-	}
-];
-var dependencies = {
-	"follow-redirects": "1.5.10"
-};
-var description = "Promise based HTTP client for the browser and node.js";
+var homepage = "https://github.com/axios/axios";
 var devDependencies = {
 	bundlesize: "^0.17.0",
 	coveralls: "^3.0.0",
@@ -2325,95 +2263,56 @@ var devDependencies = {
 	webpack: "^1.13.1",
 	"webpack-dev-server": "^1.14.1"
 };
-var homepage = "https://github.com/axios/axios";
-var keywords = [
-	"xhr",
-	"http",
-	"ajax",
-	"promise",
-	"node"
-];
-var license = "MIT";
-var main = "index.js";
-var name = "axios";
-var repository = {
-	type: "git",
-	url: "git+https://github.com/axios/axios.git"
-};
-var scripts = {
-	build: "NODE_ENV=production grunt build",
-	coveralls: "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-	examples: "node ./examples/server.js",
-	fix: "eslint --fix lib/**/*.js",
-	postversion: "git push && git push --tags",
-	preversion: "npm test",
-	start: "node ./sandbox/server.js",
-	test: "grunt test && bundlesize",
-	version: "npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"
+var browser$1 = {
+	"./lib/adapters/http.js": "./lib/adapters/xhr.js"
 };
 var typings = "./index.d.ts";
-var version = "0.19.2";
+var dependencies = {
+	"follow-redirects": "1.5.10"
+};
+var bundlesize = [
+	{
+		path: "./dist/axios.min.js",
+		threshold: "5kB"
+	}
+];
 var _package = {
-	_args: _args,
-	_from: _from,
-	_id: _id,
-	_inBundle: _inBundle,
-	_integrity: _integrity,
-	_location: _location,
-	_phantomChildren: _phantomChildren,
-	_requested: _requested,
-	_requiredBy: _requiredBy,
-	_resolved: _resolved,
-	_spec: _spec,
-	_where: _where,
-	author: author,
-	browser: browser$1,
-	bugs: bugs,
-	bundlesize: bundlesize,
-	dependencies: dependencies,
-	description: description,
-	devDependencies: devDependencies,
-	homepage: homepage,
-	keywords: keywords,
-	license: license,
-	main: main,
 	name: name,
-	repository: repository,
+	version: version,
+	description: description,
+	main: main,
 	scripts: scripts,
+	repository: repository,
+	keywords: keywords,
+	author: author,
+	license: license,
+	bugs: bugs,
+	homepage: homepage,
+	devDependencies: devDependencies,
+	browser: browser$1,
 	typings: typings,
-	version: version
+	dependencies: dependencies,
+	bundlesize: bundlesize
 };
 
 var _package$1 = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  _args: _args,
-  _from: _from,
-  _id: _id,
-  _inBundle: _inBundle,
-  _integrity: _integrity,
-  _location: _location,
-  _phantomChildren: _phantomChildren,
-  _requested: _requested,
-  _requiredBy: _requiredBy,
-  _resolved: _resolved,
-  _spec: _spec,
-  _where: _where,
-  author: author,
-  browser: browser$1,
-  bugs: bugs,
-  bundlesize: bundlesize,
-  dependencies: dependencies,
-  description: description,
-  devDependencies: devDependencies,
-  homepage: homepage,
-  keywords: keywords,
-  license: license,
-  main: main,
   name: name,
-  repository: repository,
-  scripts: scripts,
-  typings: typings,
   version: version,
+  description: description,
+  main: main,
+  scripts: scripts,
+  repository: repository,
+  keywords: keywords,
+  author: author,
+  license: license,
+  bugs: bugs,
+  homepage: homepage,
+  devDependencies: devDependencies,
+  browser: browser$1,
+  typings: typings,
+  dependencies: dependencies,
+  bundlesize: bundlesize,
   'default': _package
 });
 
@@ -3300,7 +3199,7 @@ var script = {
       type: String,
       "default": "center"
     },
-    color: {
+    colors: {
       type: String,
       "default": "active"
     },
@@ -3369,8 +3268,8 @@ var script = {
     },
     activeColor: function activeColor(subtitle, line) {
       var classNames = ['line'];
-      var color = subtitle === line.text ? this.color : '';
-      classNames.push(color);
+      var colorName = subtitle === line.text ? this.colors : '';
+      classNames.push(colorName);
       return classNames.join(' ');
     }
   }
@@ -3561,7 +3460,7 @@ var __vue_staticRenderFns__ = [];
 
 var __vue_inject_styles__ = function __vue_inject_styles__(inject) {
   if (!inject) return;
-  inject("data-v-44742bfc_0", {
+  inject("data-v-8d46f60e_0", {
     source: "#player{width:100%}audio{width:100%;border-radius:0;background:#f1f3f4;user-select:none;outline:0}.pad{list-style-type:none;padding:0;margin:0;font-size:-webkit-xxx-large;font-family:sans-serif}.line{color:#ccc;user-select:none}.line:hover{cursor:pointer;background:#f1f3F459}.line.active{color:#696969}.line.active-red{color:#ff4500}.line.active-green{color:green}.line.active-blue{color:#4169e1}.line.active-yellow{color:#ff0}.line.active-maroon{color:maroon}.size--medium{font-size:medium}.size--large{font-size:large}.size--larger{font-size:larger}.size--default{font-size:-webkit-xxx-large}.align--left{text-align:left}.align--center{text-align:center}.align--right{text-align:right}",
     map: undefined,
     media: undefined

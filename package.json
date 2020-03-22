@@ -1,6 +1,6 @@
 {
   "name": "cockatoo-player",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Audio player with subtitle and caption support",
   "private": false,
   "main": "./dist/index.js",
