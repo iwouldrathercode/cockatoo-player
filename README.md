@@ -21,4 +21,4 @@ Somewhere on your HTML / Vue Template
 ```
 
 ## Output
-![output](https://imgur.com/ggj5wi3)
+[Output](https://i.imgur.com/ggj5wi3.png)
