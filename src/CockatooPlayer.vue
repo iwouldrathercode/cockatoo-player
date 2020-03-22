@@ -1,14 +1,15 @@
 <template>
   <div id="player">
     <audio ref="audio" id="audio" @timeupdate="updateTimeSprites" controls controlsList="nodownload">
-      <source src="./music.mp3" type="audio/mpeg" preload="auto" />
+      <source :src="track" type="audio/mpeg" preload="auto" />
       Your browser does not support the audio element.
     </audio>
-    <ul class="pad">
-      <li class="line" v-bind:class="{ active: (subtitle === line.text) }" @click="seek(line)" v-for="(line, index) in subtitleLines" :key="index">
+    <ul v-show="subtitleLines.length > 0" :class="['pad','align--'+align, 'size--'+size, ]">
+      <li v-bind:class="activeColor(subtitle, line)" @click="seek(line)" v-for="(line, index) in subtitleLines" :key="index">
         {{ line.text }}
       </li>
     </ul>
+    <slot></slot>
   </div>
 </template>
 
@@ -19,17 +20,16 @@ import { parse } from 'subtitle';
 export default {
   name: "CockatooPlayer",
   props: {
-    color: { type: String, default: "#CCCCCC" },
+    track: { type: String, default: "http://tamilfiles.xyz/songs/Kolamavu%20Kokila/Kalyaana%20Vayasu.mp3"},
+    transcript: { type: String, default: "https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/007508e3a0c7e1c66cd225698794c9e5b1f430e6/music-transcript.vtt"},
     align: { type: String, default: "center"},
-    hover: { type: String, default: "#F1F3F459" },
-    active: { type: String, default: "active" },
+    color: { type: String, default: "active" },
     size: { type: String, default: "default" },
   },
   data: () => {
     return {
       time: 0,
       end: 0,
-      subtitleVtt: 'https://gist.githubusercontent.com/psgganesh/fcd058c2ecef5688429cf611facbeee6/raw/2cb75073e95efc5a5f72378072f0922732b3b381/music-transcript.vtt',
       subtitleLines: []
     }
   },
@@ -45,12 +45,13 @@ export default {
         }
       }.bind(this));
       return (line.length > 0) ? line.pop().text : '';
-    }
+    },
+    
   },
   methods: {
     async setup() {
       let vttResponse = null;
-      await axios.get(this.subtitleVtt)
+      await axios.get(this.transcript)
       .then(function (response) {
         // handle success
         vttResponse = parse(response.data);
@@ -78,6 +79,12 @@ export default {
           this.$refs.audio.currentTime = 0;
         }
       }
+    },
+    activeColor(subtitle, line) {
+      let classNames = ['line'];
+      let color = (subtitle === line.text) ? this.color: '';
+      classNames.push(color);
+      return classNames.join(' ');
     }
   }
 };
@@ -132,16 +139,16 @@ audio {
 
 
 /* Sizes */
-.size-medium {
+.size--medium {
   font-size: medium;
 }
-.size-large {
+.size--large {
   font-size: large;
 }
-.size-larger {
+.size--larger {
   font-size: larger;
 }
-.size-default {
+.size--default {
   font-size: -webkit-xxx-large;
 }
 
