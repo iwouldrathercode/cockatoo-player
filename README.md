@@ -20,3 +20,4 @@ Somewhere on your HTML / Vue Template
 />
 ```
 
+![image](https://imgur.com/ggj5wi3)
