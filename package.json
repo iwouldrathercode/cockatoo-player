@@ -1,11 +1,11 @@
 {
   "name": "cockatoo-player",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Audio player with subtitle and caption support",
   "private": false,
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
-    "dev": "vue serve AudioPlayer.vue",
+    "dev": "vue serve CockatooPlayer.vue",
     "build": "bili --name index --plugin vue --vue.css false"
   },
   "files": [
