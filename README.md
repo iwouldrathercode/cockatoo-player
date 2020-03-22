@@ -1,5 +1,5 @@
-# cockatoo-player
-> Audio player with subtitle and caption support
+# cockatoo-player 🦜
+> Current HTML5 supports subtitle only for video. This package specifically supports subtitles for audio.
 
 ## Dependencies :sparkles:
 - [axios](https://www.npmjs.com/package/axios)
