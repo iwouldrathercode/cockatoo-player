@@ -1,5 +1,5 @@
 /*!
- * cockatoo-player v1.0.3
+ * cockatoo-player v1.0.4
  * (c) psgganesh@gmail.com
  * Released under the MIT License.
  */
