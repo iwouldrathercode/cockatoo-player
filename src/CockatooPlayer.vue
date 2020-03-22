@@ -9,7 +9,6 @@
         {{ line.text }}
       </li>
     </ul>
-    <slot></slot>
   </div>
 </template>
 
