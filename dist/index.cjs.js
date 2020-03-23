@@ -1,8 +1,5 @@
 'use strict';
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var axios = _interopDefault(require('axios'));
 var subtitle = require('subtitle');
 
 //
@@ -57,16 +54,10 @@ var script = {
       return new Promise(function ($return, $error) {
         var vttResponse;
         vttResponse = null;
-        return Promise.resolve(axios.get(this.transcript).then(function (response) {
-          // handle success
-          vttResponse = subtitle.parse(response.data);
-        }).catch(function (error) {
-          // handle error
-          console.log(error);
-        }).then(function () {//
-        })).then(function ($await_1) {
+        return Promise.resolve(this.makeRequest("GET", this.transcript)).then(function ($await_1) {
           try {
-            this.subtitleLines = vttResponse;
+            vttResponse = $await_1;
+            this.subtitleLines = subtitle.parse(vttResponse);
             return $return();
           } catch ($boundEx) {
             return $error($boundEx);
@@ -95,6 +86,32 @@ var script = {
       var colorName = subtitle$$1 === line.text ? this.colors : '';
       classNames.push(colorName);
       return classNames.join(' ');
+    },
+    makeRequest: function makeRequest(method, url) {
+      return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+
+        xhr.onload = function () {
+          if (this.status >= 200 && this.status < 300) {
+            resolve(xhr.response);
+          } else {
+            reject({
+              status: this.status,
+              statusText: xhr.statusText
+            });
+          }
+        };
+
+        xhr.onerror = function () {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        };
+
+        xhr.send();
+      });
     }
   }
 };
@@ -244,7 +261,7 @@ var __vue_staticRenderFns__ = [];
   /* style */
   const __vue_inject_styles__ = function (inject) {
     if (!inject) return
-    inject("data-v-43eb1610_0", { source: "#player{width:100%}audio{width:100%;border-radius:0;background:#f1f3f4;user-select:none;outline:0}.pad{list-style-type:none;padding:0;margin:0;font-size:-webkit-xxx-large;font-family:sans-serif}.line{color:#ccc;user-select:none}.line:hover{cursor:pointer;background:#f1f3F459}.line.active{color:#696969}.line.active-red{color:#ff4500}.line.active-green{color:green}.line.active-blue{color:#4169e1}.line.active-yellow{color:#ff0}.line.active-maroon{color:maroon}.size--medium{font-size:medium}.size--large{font-size:large}.size--larger{font-size:larger}.size--default{font-size:-webkit-xxx-large}.align--left{text-align:left}.align--center{text-align:center}.align--right{text-align:right}", map: undefined, media: undefined });
+    inject("data-v-dcfd74e4_0", { source: "#player{width:100%}audio{width:100%;border-radius:0;background:#f1f3f4;user-select:none;outline:0}.pad{list-style-type:none;padding:0;margin:0;font-size:-webkit-xxx-large;font-family:sans-serif}.line{color:#ccc;user-select:none}.line:hover{cursor:pointer;background:#f1f3F459}.line.active{color:#696969}.line.active-red{color:#ff4500}.line.active-green{color:green}.line.active-blue{color:#4169e1}.line.active-yellow{color:#ff0}.line.active-maroon{color:maroon}.size--medium{font-size:medium}.size--large{font-size:large}.size--larger{font-size:larger}.size--default{font-size:-webkit-xxx-large}.align--left{text-align:left}.align--center{text-align:center}.align--right{text-align:right}", map: undefined, media: undefined });
 
   };
   /* scoped */

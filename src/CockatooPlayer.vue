@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import { parse }  from 'subtitle';
 
 export default {
@@ -44,25 +43,13 @@ export default {
         }
       }.bind(this));
       return (line.length > 0) ? line.pop().text : '';
-    },
-    
+    }
   },
   methods: {
     async setup() {
       let vttResponse = null;
-      await axios.get(this.transcript)
-      .then(function (response) {
-        // handle success
-        vttResponse = parse(response.data);
-      })
-      .catch(function (error) {
-        // handle error
-        console.log(error);
-      })
-      .then(function () {
-        //
-      });
-      this.subtitleLines = vttResponse;
+      vttResponse = await this.makeRequest("GET", this.transcript);
+      this.subtitleLines = parse(vttResponse);
     },
     seek(line) {
       this.$refs.audio.currentTime = Math.abs(line.start / 1000);
@@ -84,6 +71,29 @@ export default {
       let colorName = (subtitle === line.text) ? this.colors: '';
       classNames.push(colorName);
       return classNames.join(' ');
+    },
+    makeRequest(method, url) {
+        return new Promise(function (resolve, reject) {
+            let xhr = new XMLHttpRequest();
+            xhr.open(method, url);
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            xhr.send();
+        });
     }
   }
 };

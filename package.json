@@ -1,6 +1,6 @@
 {
   "name": "cockatoo-player",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "Audio player with subtitle and caption support",
   "private": false,
   "main": "./dist/index.cjs.js",
@@ -27,7 +27,6 @@
   },
   "homepage": "https://github.com/iwouldrathercode/cockatoo-player#readme",
   "dependencies": {
-    "axios": "^0.19.2",
     "subtitle": "^2.0.3"
   },
   "devDependencies": {

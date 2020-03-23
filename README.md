@@ -1,9 +1,8 @@
-# cockatoo-player 🦜
+# cockatoo-player 🎧🦜
 > Current HTML5 supports subtitle only for video. This package specifically supports subtitles for audio.
 
 ## Dependencies :sparkles:
-- [axios](https://www.npmjs.com/package/axios)
-- [subtitle.js](https://www.npmjs.com/package/subtitle)
+- [subtitle.js](https://www.npmjs.com/package/subtitle) To parse subtitles and display below the player
 
 ```javascript
 import Vue from 'vue'
@@ -26,4 +25,5 @@ Somewhere on your HTML / Vue Template
 <img src="https://i.imgur.com/ggj5wi3.png" />
 
 ## Todo
-- [ ] Remove axios
+- [x] Remove axios
+- [ ] Add VTT URL validations
